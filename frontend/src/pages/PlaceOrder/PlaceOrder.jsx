@@ -1,57 +1,110 @@
-import React, { useContext } from 'react'
-import './PlaceOrder.css'
-import { StoreContext } from '../../Context/StoreContext'
-const PlaceOrder = () => {
+import React, { useContext, useState } from "react";
+import "./PlaceOrder.css";
+import { StoreContext } from "../../Context/StoreContext";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-  const {getTotalCartAmount} =useContext(StoreContext)
+const PlaceOrder = () => {
+  const { cartItems, food_list, getTotalCartAmount } = useContext(StoreContext);
+  const navigate = useNavigate();
+  const url = "http://localhost:4000";
+
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    street: "",
+    city: "",
+    state: "",
+    zip: "",
+    country: "",
+    phone: "",
+  });
+
+  const userId = "66b7d123e4a56b2eac789012"; // later from login
+  const deliveryFee = 2;
+
+  const items = food_list
+    .filter((item) => cartItems[item._id] > 0)
+    .map((item) => ({
+      foodId: item._id,
+      name: item.name,
+      quantity: cartItems[item._id],
+      price: item.price,
+    }));
+
+  const totalAmount = getTotalCartAmount() + deliveryFee;
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const placeOrder = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(`${url}/api/order/place`, {
+        userId,
+        items,
+        amount: totalAmount,
+        deliveryInfo: formData,
+      });
+
+      if (response.data.success) {
+        alert("✅ Order placed successfully!");
+        navigate("/"); // go home
+      } else {
+        alert("❌ Failed to place order");
+      }
+    } catch (error) {
+      console.error("Error placing order:", error);
+    }
+  };
+
   return (
-     <form className='place-order'>
+    <form className="place-order" onSubmit={placeOrder}>
       <div className="place-order-left">
         <p className="title">Delivery Information</p>
         <div className="multi-fields">
-          <input type="text" placeholder='First name'/>
-          <input type="text" placeholder='Last name'/>
+          <input type="text" name="firstName" placeholder="First name" onChange={handleChange} />
+          <input type="text" name="lastName" placeholder="Last name" onChange={handleChange} />
         </div>
-        <input type="Email" placeholder='Email'/>
-        <input type="text" placeholder='Street'/>
+        <input type="email" name="email" placeholder="Email" onChange={handleChange} />
+        <input type="text" name="street" placeholder="Street" onChange={handleChange} />
         <div className="multi-fields">
-          <input type="text" placeholder='City'/>
-          <input type="text" placeholder='State'/>
+          <input type="text" name="city" placeholder="City" onChange={handleChange} />
+          <input type="text" name="state" placeholder="State" onChange={handleChange} />
         </div>
         <div className="multi-fields">
-          <input type="number" placeholder='Zip code'/>
-          <input type="text" placeholder='Country'/>
+          <input type="number" name="zip" placeholder="Zip code" onChange={handleChange} />
+          <input type="text" name="country" placeholder="Country" onChange={handleChange} />
         </div>
-        <input type="text" placeholder='Phone'/>
+        <input type="text" name="phone" placeholder="Phone" onChange={handleChange} />
       </div>
+
       <div className="place-order-right">
-      <div className="cart-total">
+        <div className="cart-total">
           <h2>Total</h2>
           <div>
             <div className="cart-total-details">
-                <p>Sub-Total</p>
-                <p>{getTotalCartAmount()}</p>
+              <p>Sub-Total</p>
+              <p>{getTotalCartAmount()}</p>
             </div>
             <hr />
             <div className="cart-total-details">
-                  <p>Delivery Fee</p>
-                  <p>{2}</p>
+              <p>Delivery Fee</p>
+              <p>{deliveryFee}</p>
             </div>
             <hr />
             <div className="cart-total-details">
-                <b>Total</b>
-                <b>{getTotalCartAmount()+2}</b>
+              <b>Total</b>
+              <b>{totalAmount}</b>
             </div>
           </div>
-          <button>Proceed to payment</button>
+          <button type="submit">Proceed to payment</button>
         </div>
       </div>
-      
-
     </form>
-      
-    
-  )
-}
+  );
+};
 
-export default PlaceOrder
+export default PlaceOrder;

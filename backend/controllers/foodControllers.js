@@ -39,17 +39,50 @@ const addFood = async (req,res)=>{
 
    //remove food item
 
-   const removeFood = async(req,res)=>{
-    try {
-     const food = await foodModel.find(req.params.id);
-     fs.unlink(`uploads/${food.image}`,()=>{})
+  const removeFood = async (req, res) => {
+  try {
+    const food = await foodModel.findById(req.params.foodId);
+    if (!food) return res.status(404).json({ success: false, message: "Food not found" });
 
-      await foodModel.findByIdAndDelete(req.params.id);
-      res.json({success:true,message:"Food Removed"})
-    } catch (error) {
-      console.log(error);
-      res.json({success:false,message:"Error"})
-    }
-   }
+    // Delete image file
+    fs.unlink(`uploads/${food.image}`, (err) => {
+      if (err) console.log("Error deleting file:", err);
+    });
 
-export {addFood,listFood,removeFood}
+    await foodModel.findByIdAndDelete(req.params.foodId);
+    res.json({ success: true, message: "Food Removed" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Error removing food" });
+  }
+};
+
+// update food
+
+const updateFood = async(req,res)=>{
+      try{
+        const food = await foodModel.findById(req.params.foodId);
+        if(!food)return res.status(404).json({message:"Food not found"})
+        if(req.file){
+          fs.unlink(`uploads/${food.image}`,(err)=>{
+            if(err) console.log("Error deleting old image:",err)
+          })
+        food.image= req.file.filename
+        }
+        food.name = req.body.name || food.name;
+        food.category = req.body.category || food.category;
+        food.price = req.food.price || food.price;
+
+        await food.save();
+
+        res.json({success:true,message:"Food updated success", data: food})
+      }
+      catch(error) {
+          console.log(error);
+          res.status(500).json({success:false,message:"Error updating food",})
+      }
+}
+
+
+
+export {addFood,listFood,removeFood,updateFood}
