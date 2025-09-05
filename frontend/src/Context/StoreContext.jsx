@@ -11,7 +11,7 @@ const StoreContextProvider = (props) => {
   useEffect(() => {
     const fetchFoods = async () => {
       try {
-        const response = await axios.get("http://localhost:4000/api/food/list");
+        const response = await axios.get("https://tomato-dbv5.onrender.com/api/food/list");
         if (response.data.success) {
           setFoodList(response.data.data);
         }

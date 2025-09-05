@@ -3,7 +3,7 @@ import './List.css'
 import axios from "axios"
 
 const List = () => {
-  const url = "http://localhost:4000"
+  const url = "https://tomato-dbv5.onrender.com"
   const [list, setList] = useState([]);
   const [editingFood, setEditingFood] = useState(null);
 

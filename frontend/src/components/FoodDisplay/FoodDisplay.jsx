@@ -26,7 +26,7 @@ const FoodDisplay = ({ category }) => {
               name={item.name}
               price={item.price}
               description={item.description}
-              image={`http://localhost:4000/image/${item.image}`}
+              image={`https://tomato-dbv5.onrender.com/image/${item.image}`}
             />
           ))}
       </div>

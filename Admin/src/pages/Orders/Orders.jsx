@@ -3,7 +3,7 @@ import axios from "axios";
 import "./Orders.css";
 
 const Orders = () => {
-  const url = "http://localhost:4000";
+  const url = "https://tomato-dbv5.onrender.com";
   const [orders, setOrders] = useState([]);
 
   const fetchOrders = async () => {
