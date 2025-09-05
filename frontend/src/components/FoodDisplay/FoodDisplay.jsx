@@ -7,17 +7,21 @@ const FoodDisplay = ({ category }) => {
   const { food_list } = useContext(StoreContext)
 
   console.log("Active category:", category)
-  food_list.forEach(f => console.log(f.name, "->", f.category))
+
+  // Safe logging
+  if (food_list) {
+    food_list.forEach(f => console.log(f.name, "->", f.category))
+  }
 
   return (
     <div className="food-display">
       <h2>{category === "All" ? "All Foods" : category}</h2>
       <div className="food-display-list">
-        {food_list
+        {(food_list || [])
           .filter(
             item =>
               category === "All" ||
-              item.category.toLowerCase() === category.toLowerCase()
+              item.category?.toLowerCase() === category.toLowerCase()
           )
           .map(item => (
             <FoodItem
