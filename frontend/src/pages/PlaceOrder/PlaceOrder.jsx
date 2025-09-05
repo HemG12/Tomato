@@ -4,10 +4,10 @@ import { StoreContext } from "../../Context/StoreContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const PlaceOrder = () => {
-  const { cartItems, food_list, getTotalCartAmount } = useContext(StoreContext);
+const PlaceOrder = ({ setShowLogin }) => {
+  const { cartItems, food_list, getTotalCartAmount, token } = useContext(StoreContext);
   const navigate = useNavigate();
-  const url = "http://localhost:4000";
+  const url = "http://localhost:4000"; // change to live URL in production
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -21,7 +21,6 @@ const PlaceOrder = () => {
     phone: "",
   });
 
-  const userId = "66b7d123e4a56b2eac789012"; // later from login
   const deliveryFee = 2;
 
   const items = food_list
@@ -41,13 +40,25 @@ const PlaceOrder = () => {
 
   const placeOrder = async (e) => {
     e.preventDefault();
+
+    // 🔒 Check login first
+    if (!token) {
+      setShowLogin(true); // open login popup
+      return;
+    }
+
     try {
-      const response = await axios.post(`${url}/api/order/place`, {
-        userId,
-        items,
-        amount: totalAmount,
-        deliveryInfo: formData,
-      });
+      const response = await axios.post(
+        `${url}/api/order/place`,
+        {
+          items,
+          amount: totalAmount,
+          deliveryInfo: formData,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` }, // attach token
+        }
+      );
 
       if (response.data.success) {
         alert("✅ Order placed successfully!");
@@ -57,6 +68,8 @@ const PlaceOrder = () => {
       }
     } catch (error) {
       console.error("Error placing order:", error);
+      alert("⚠️ Please login again");
+      setShowLogin(true);
     }
   };
 

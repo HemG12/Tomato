@@ -22,7 +22,7 @@ const LoginPopup = ({ setShowLogin }) => {
 
     try {
       if (currState === "Sign Up") {
-        const res = await axios.post("http://localhost:5000/api/auth/signup", {
+        const res = await axios.post("https://tomato-dbv5.onrender.com/signup", {
           name: formData.name,
           email: formData.email,
           password: formData.password
@@ -30,7 +30,7 @@ const LoginPopup = ({ setShowLogin }) => {
         alert(res.data.message || "Signup successful!");
         setCurrState("Login"); // after signup, go to login
       } else {
-        const res = await axios.post("http://localhost:5000/api/auth/login", {
+        const res = await axios.post("https://tomato-dbv5.onrender.com/login", {
           email: formData.email,
           password: formData.password
         });
